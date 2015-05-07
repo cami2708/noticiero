@@ -395,8 +395,13 @@ class PLL_Model {
 		$translations = $type && ($term = $this->get_object_term($id, $type . '_translations')) && !empty($term) ? unserialize($term->description) : array();
 
 		// make sure we return only translations (thus we allow plugins to store other informations in the array)
-		return array_intersect_key($translations, array_flip($this->get_languages_list(array('fields' => 'slug'))));
-	}
+		$translations = array_intersect_key($translations, array_flip($this->get_languages_list(array('fields' => 'slug'))));
+		
+		// make sure to return at least the passed post or term in its translation array
+		if (empty($translations) && $lang = call_user_func(array(&$this, 'get_'.$type.'_language'), $id))
+			$translations = array($lang->slug => $id);
+		
+		return $translations;	}
 
 	/*
 	 * store the post language in the database
@@ -592,6 +597,8 @@ class PLL_Model {
 
 	/*
 	 * returns post types that need to be translated
+	 * the post types list is cached for better better performance
+	 * wait for 'after_setup_theme' to apply the cache to allow themes adding the filter in functions.php
 	 *
 	 * @since 1.2
 	 *
@@ -599,11 +606,10 @@ class PLL_Model {
 	 * @return array post type names for which Polylang manages languages and translations
 	 */
 	public function get_translated_post_types($filter = true) {
-		static $post_types = null;
+		if (did_action('after_setup_theme'))
+			static $post_types = null;
 
-		// the post types list is cached for better better performance
-		// wait for 'after_setup_theme' to apply the cache to allow themes adding the filter in functions.php
-		if (null === $post_types || !did_action('after_setup_theme')) {
+		if (empty($post_types)) {
 			$post_types = array('post' => 'post', 'page' => 'page');
 
 			if (!empty($this->options['media_support']))
@@ -654,9 +660,10 @@ class PLL_Model {
 	 * @return array array of registered taxonomy names for which Polylang manages languages and translations
 	 */
 	public function get_translated_taxonomies($filter = true) {
-		static $taxonomies = null;
+		if (did_action('after_setup_theme'))
+			static $taxonomies = null;
 
-		if (null === $taxonomies || !did_action('after_setup_theme')) {
+		if (empty($taxonomies)) {
 			$taxonomies = array('category' => 'category', 'post_tag' => 'post_tag');
 
 			if (is_array($this->options['taxonomies']))
