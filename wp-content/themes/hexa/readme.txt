@@ -70,6 +70,9 @@ If a Featured Image at least 842px wide is set for a post, it will display above
 
 == Changelog ==
 
+= 1.0.2 - May 7, 2017
+* Security update: Remove Genericons' file due to DOM-based cross-site scripting (XSS) vulnerability.
+
 = 1.0.1 - February 23, 2014 - Multiple minor fixes
 * Improvements to infinite footer styles
 * Minor fix for border width for child comments
