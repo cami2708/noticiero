@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <title>Fetch item metadata from Google Scholar - jsFiddle demo by hubfiddle</title>
+  
+  <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+  
+  <link rel="stylesheet" type="text/css" href="/css/normalize.css">
+  
+  
+  <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+  
+  <style type='text/css'>
+    body { font-family: sans-serif; padding: 10px; }
+
+dt { font-weight: bold; margin-top: 10px; }
+dd { margin-left: 10px; }
+
+#error { color: red; }
+
+div { margin: 10px 0; }
+
+  </style>
+  
+
+
+<script type='text/javascript'>//<![CDATA[ 
+$(window).load(function(){
+var handleFact = function(fact) {
+    $("<dt/>").html(fact.displayAttribute).appendTo("#facts");
+
+    var list = $("<ol/>");
+    fact.values.forEach(function(value) {
+        $("<li/>").html(value.displayValue).appendTo(list);
+    });
+
+    $("<dd/>").append(list).appendTo("#facts");
+};
+
+var handleData = function(data) {
+    try {
+        var item = data.data[0].scholar[0];
+        //console.log(item);
+        
+        $("<a/>", { href: item.url, target: "_blank" })
+            .html(item.title)
+            .appendTo("#metadata")
+            .wrap("<div/>");
+        
+        var citation = item.citedSources.citations[0].bibliographyText;
+        $("<div/>").html(citation).appendTo("#metadata");
+
+        $("<div/>").html(item.snippet).appendTo("#metadata");
+        
+        $("<a/>", { href: item.citedByUrl, target: "_blank" })
+            .text("Citing articles in Google Scholar")
+            .appendTo("#metadata")
+            .wrap("<div/>");
+
+        item.facts.forEach(handleFact);
+    }
+    catch (e) {
+        $("#error").text("Data was not available for this URL - try using the DOI instead?");
+    }
+};
+
+$("#input").on("submit", function(event) {
+    event.preventDefault();
+    var form = $(this);
+
+    $("#facts,#metadata,#error").empty();
+
+    $.getJSON(form.attr("action") + "?callback=?", form.serializeArray(), handleData);
+});
+});//]]>  
+
+</script>
+
+
+</head>
+<body>
+  <form id="input" action="https://www.googleapis.com/scribe/v1/research">
+    <input type="submit" value="fetch">
+    <input name="query" size="80" value="http://www.nature.com/nature/journal/v485/n7398/full/nature11076.html">
+    <input type="hidden" name="dataset" value="paper">
+    <input type="hidden" name="key" value="AIzaSyDqVYORLCUXxSv7zneerIgC2UYMnxvPeqQ">
+</form>
+
+<div id="metadata"></div>
+<dl id="facts"></dl>
+<div id="error"></div>
+
+
+  
+</body>
+
+
+</html>
+
