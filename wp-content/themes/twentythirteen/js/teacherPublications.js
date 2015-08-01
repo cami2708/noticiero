@@ -1,5 +1,5 @@
 // @teacherName STRING, @teacherSurname STRING
-function(teacherName, teacherSurname){
+teacherPublications = function(teacherName, teacherSurname){
   var scholarRequest      = new XMLHttpRequest();
   //var teacherName         = "Karol";
   //var teacherSurname      = "Suchan";
@@ -11,8 +11,14 @@ function(teacherName, teacherSurname){
   scholarRequest.open("GET",url,true);
   scholarRequest.setRequestHeader("Content-Type", "application/json");
 
-  // Create an <br> HTML element
-  var br = document.createElement("br");
+  // Creating HTML elements
+  var br      = document.createElement("<br>");
+  var h3      = document.createElement("<h3>");
+  var h6      = document.createElement("<h6>");
+  var endH3   = document.createElement("</h3>");
+  var endH6   = document.createElement("</h6>");
+  var endDiv  = document.createElement("</div>");
+  
 
   // Function for upload data requested
   scholarRequest.onloadend = function(){
@@ -29,9 +35,22 @@ function(teacherName, teacherSurname){
     
     // Calling all the elements inside the class "scholar" from the last to the begining
     for (var i = googleScholarInfoPublications.data[0].scholar.length - 1; i >= 0; i--) {
+      numberPublication           = googleScholarInfoPublications.data[0].scholar.length - i;
+      idPublication               = 'publication' + numberPublication;
+      arrayDiv[i]                 = document.createElement('div');
+      arrayDiv[i].id              = idPublication;
+      arrayDiv[i].className       = idPublication;
+      arrayHref[i]                = document.createElement('a');
+      arrayHref[i].id             = idPublication;
+
+
       // Generate The content and that is added in the element HTML with "result" ID
-      result.innerText += googleScholarInfoPublications.data[0].scholar[i].title; //display the result in an HTML element
-      result.innerText += "+";
+      idPublication.innerText += h3;
+      idPublication.innerText += googleScholarInfoPublications.data[0].scholar[i].title; //display the result in an HTML element
+      idPublication.innerText += endH3;
+      idPublication.innerText += h6;
+      idPublication.innerText += googleScholarInfoPublications.data[0].scholar[i].metadata;
+      idPublication.innerText += endH6;
     };
     
   };
